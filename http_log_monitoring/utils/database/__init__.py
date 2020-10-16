@@ -47,10 +47,11 @@ class LogDatabase:
         """
         pass
 
-    def get_stats(self, current_time):
+    def get_stats(self, current_time, last_print):
         """
         This will return statistics for the logs which occurred in the time period given by STATS_TIME.
         :param current_time: The current time from the last log message
+        :param last_print: The last time statistics were printed
         :return: num_logs - The number of logs
                 section_stat - the most frequently logged section
                 user_stat - the most frequently logged user

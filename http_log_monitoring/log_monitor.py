@@ -28,6 +28,9 @@ def main(log_file_path, threshold, should_continue):
         log_monitor.add_log(log_line)
         log_line = LogParser.read_line(log_file)
 
+    # Print any last statistics at the end
+    log_monitor.print_stats()
+
     # Watch to see if additional lines are added, and process them
     if should_continue:
         log_lines = watch(log_file)

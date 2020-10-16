@@ -40,21 +40,31 @@ class LogDatabasePandas(LogDatabase):
         """
         return int(self.database["date"].value_counts().mean())
 
-    def get_stats(self, current_time):
+    def get_stats(self, current_time, last_print):
         """
         This will return statistics for the logs which occurred in the time period given by STATS_TIME.
         :param current_time: The current time from the last log message
+        :param last_print: The last time statistics were printed
         :return: num_logs - The number of logs
                 section_stat - the most frequently logged section
                 user_stat - the most frequently logged user
                 failed_request - the number of failed requests
         """
         logs_for_stats = self.database.loc[
-            (current_time - self.database["date"]) < LogDatabase.get_time_diff_for_stats()
+            (current_time >= self.database["date"]) & (self.database["date"] > last_print)
             ]
-        section_stat = logs_for_stats["section"].value_counts().idxmax()
-        user_stat = logs_for_stats["authuser"].value_counts().idxmax()
-        failed_request = len(logs_for_stats.loc[logs_for_stats["status"] >= 400])
-        num_logs = len(logs_for_stats)
-        return num_logs, section_stat, user_stat, failed_request
+        if len(logs_for_stats):
+            section_stat = logs_for_stats["section"].value_counts().idxmax()
+            user_stat = logs_for_stats["authuser"].value_counts().idxmax()
+            failed_request = len(logs_for_stats.loc[logs_for_stats["status"] >= 400])
+            num_logs = len(logs_for_stats)
+            last_print = logs_for_stats["date"].unique().max()
+            print("{}: Number of logs: {}, Top hit section: {}, Top user: {}, Failed request: {}".format(
+                current_time,
+                num_logs,
+                section_stat,
+                user_stat,
+                failed_request)
+            )
+        return last_print
 

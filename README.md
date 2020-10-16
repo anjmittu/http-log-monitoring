@@ -150,7 +150,7 @@ program.  For example, in a CSV format.
 
 Given more time, I would have written more tests.  I would 
 add additional behavior tests, to check if the statistics
-are displayed correctly.  I would also add unit tests to 
+are displayed correctly and more unit tests to 
 test the functions in this service.
 
 
