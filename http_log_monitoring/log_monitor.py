@@ -1,10 +1,13 @@
 import argparse
 import os
-from utils.input import watch
-from logs.parser import LogParser
-from logs.monitor import LogMonitor
+import sys
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
+
+from http_log_monitoring.utils.input import watch
+from http_log_monitoring.logs.parser import LogParser
+from http_log_monitoring.logs.monitor import LogMonitor
 
 
 def main(log_file_path, threshold, should_continue):
@@ -36,7 +39,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='A HTTP log monitoring service')
     parser.add_argument('--file', help='the name of the log file relative to the project root',
                         default="data/sample_csv.txt")
-    parser.add_argument('-t', dest='threshold', help='the threshold value to cause an alert',
+    parser.add_argument('-t', dest='threshold', help='the threshold value to cause an steps',
                         default=10)
     parser.add_argument('-c', dest='should_continue',
                         help='This indicates that the service should continue to watch the log', action='store_true')

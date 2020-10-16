@@ -1,5 +1,5 @@
-from logs.parser import LogParser
-from utils.database import LogDatabase
+from http_log_monitoring.logs.parser import LogParser
+from http_log_monitoring.utils.database import LogDatabase
 
 
 class LogMonitor:
@@ -11,18 +11,15 @@ class LogMonitor:
         """
         This initialises the class.
         :param log_header: The column names for the database.
-        :param threshold: The threshold value to cause an alert
+        :param threshold: The threshold value to cause an steps
         """
         self.header = LogParser.parse_header(log_header)
         self.saved_logs = LogDatabase(self.header)
         self.threshold = threshold
 
-        # These values will hold the last time statistics were printed and the last time a log message was read.
+        # These values will hold the last time statistics were printed and the time of the first log.
         self.last_print_time = None
-        self.last_log_time = None
-
-        # This is used to temporarily hold logs that all occur at the same time.
-        self.hold_logs = []
+        self.first_log_time = None
 
         self.alert = False
 
@@ -40,32 +37,29 @@ class LogMonitor:
         # Set values when the first log comes
         if self.last_print_time is None:
             self.last_print_time = current_time
-            self.last_log_time = current_time
+            self.first_log_time = current_time
 
-        # Check if the time has increased from the last log
-        if self.last_log_time == current_time:
-            self.hold_logs.append(parsed_log)
-        else:
-            self.last_log_time = current_time
-            self.saved_logs.add_to_db(self.hold_logs)
-            self.hold_logs = []
+        # Add log to db
+        self.saved_logs.add_to_db(parsed_log)
 
-            # Remove any logs greater than the max hold time
-            self.saved_logs.remove_old_logs(current_time)
+        # Remove any logs greater than the max hold time
+        self.saved_logs.remove_old_logs(current_time)
 
+        # We need to have 2 mins of logs before we can check for alerts
+        if (current_time - self.first_log_time) >= LogDatabase.get_time_diff_for_alerts():
             avg_logs = self.saved_logs.get_avg_num_logs()
-            # If there was an alert, check if the alert is over
+            # If there was an steps, check if the steps is over
             if self.alert and avg_logs < self.threshold:
                 # Turn the alarm off
                 self.alert = False
                 print("Alert has recovered at {}".format(current_time))
-            # If there is not an alert, see if there should be one
+            # If there is not an steps, see if there should be one
             elif not self.alert and avg_logs >= self.threshold:
-                # Turn on the alert
+                # Turn on the steps
                 self.alert = True
-                print("High traffic generated an alert - hits = {}, triggered at {}".format(avg_logs, current_time))
+                print("High traffic generated an steps - hits = {}, triggered at {}".format(avg_logs, current_time))
 
-        if current_time - self.last_print_time > LogDatabase.get_time_diff_stats():
+        if current_time - self.last_print_time > LogDatabase.get_time_diff_for_stats():
             # Look at the last 10 seconds
             num_logs, section_stat, user_stat, failed_request = self.saved_logs.get_stats(current_time)
             print("{}: Number of logs: {}, Top hit section: {}, Top user: {}, Failed request: {}".format(

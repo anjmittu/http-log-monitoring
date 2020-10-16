@@ -24,11 +24,11 @@ class LogDatabase:
 
     def add_to_db(self, loglines):
         """
-        This adds a new logs to the database.
+        This adds a new log to the database.
 
-        :param loglines: The logs to be added.  This should be a list with a dict for each log.
+        :param loglines: The log to be added.  This should be a dict with the log values.
         """
-        self.database = self.database.append(loglines)
+        self.database = self.database.append(loglines, ignore_index=True)
 
     def remove_old_logs(self, current_time):
         """
@@ -37,7 +37,7 @@ class LogDatabase:
         :param current_time: The current time from the last log message
         """
         self.database = self.database.loc[
-            (current_time - self.database["date"]) < pd.Timedelta(MAX_HOLD_LOGS, 'm')
+            (current_time - self.database["date"]) <= LogDatabase.get_time_diff_for_alerts()
             ]
 
     def get_avg_num_logs(self):
@@ -57,7 +57,7 @@ class LogDatabase:
                 failed_request - the number of failed requests
         """
         logs_for_stats = self.database.loc[
-            (current_time - self.database["date"]) < pd.Timedelta(STATS_TIME, 's')
+            (current_time - self.database["date"]) < LogDatabase.get_time_diff_for_stats()
             ]
         section_stat = logs_for_stats["section"].value_counts().idxmax()
         user_stat = logs_for_stats["authuser"].value_counts().idxmax()
@@ -66,8 +66,15 @@ class LogDatabase:
         return num_logs, section_stat, user_stat, failed_request
 
     @staticmethod
-    def get_time_diff_stats():
+    def get_time_diff_for_stats():
         """
         :return: This will return a Timedelta object with the difference given by STATS_TIME.
         """
         return pd.Timedelta(STATS_TIME, 's')
+
+    @staticmethod
+    def get_time_diff_for_alerts():
+        """
+                :return: This will return a Timedelta object with the difference given by MAX_HOLD_LOGS.
+                """
+        return pd.Timedelta(MAX_HOLD_LOGS, 'm')

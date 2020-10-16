@@ -1,6 +1,6 @@
 import os
 import time
-from logs.parser import LogParser
+from http_log_monitoring.logs.parser import LogParser
 
 def watch(log_file):
     """
