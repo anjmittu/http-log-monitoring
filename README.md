@@ -7,6 +7,21 @@ logs exceed a threshold value on average for 2 minutes.
 By default this value to set to 10, but can be configured.
 
 ## Overview
+
+### Directory Structure
+```
+- http_log_monitoring
+    - logs
+        - monitor.py        :- Monitor new logs being processed by the application
+        - parser.py         :- Parses log messages
+    - utils
+        - database
+            - __init__.py   :- Base LogDatabase class
+            - pandas_db.py  :- Stores the logs in a pandas database
+        - input.py          :- Utility functions for readin input
+    - log_monitor.py        :- The main function for the HTTP log monitoring service
+```
+
 This service will intake a CSV-encoded HTTP log file and will
 monitor the logs.  Using the `-c` parameter, the service can
 be set to run continuously.  This means the program will
@@ -33,24 +48,10 @@ The service will start an alert when the number of logs exceeds
 a threshold value on average for more than 2 minutes.  By 
 default this value to set to 10, but can be configured.  The
 alert will give the average number logs in the past 2 
-minutes and the time the allert was triggered.  When the traffic
+minutes and the time the alert was triggered.  When the traffic
 returns to below the threshold value, the alert will recover
 and a another message showing the recovery time will be 
 printed.
-
-### Directory Structure
-```
-- http_log_monitoring
-    - logs
-        - monitor.py        :- Monitor new logs being processed by the application
-        - parser.py         :- Parses log messages
-    - utils
-        - database
-            - __init__.py   :- Base LogDatabase class
-            - pandas_db.py  :- Stores the logs in a pandas database
-        - input.py          :- Utility functions for readin input
-    - log_monitor.py        :- The main function for the HTTP log monitoring service
-```
 
 ## How to run
 This service can be run with docker or on it's own.  The main
@@ -120,7 +121,7 @@ behave test/behave/features
 ```
 
 ## Implementation
-Log messages are in in one line at a time.  The log is parsed,
+Log messages are read in one line at a time.  The log is parsed,
 then stored in a pandas dataframe.  The dataframe will only
 hold the past 2 minutes worth of logs.  Any queries for 
 statistics or alerts will be done on this dataframe.  This
@@ -139,7 +140,9 @@ databases can be used, such as MySQL or PostgreSQL.
 New databases can easily be added by extending the 
 LogDatabase class.  In this way, you could have
 multiple instances of this service reading from different
-files, but saving to the same database.
+files, but saving to the same database.  In addition, the 
+service could be changed to process logs in separate 
+threads.
 
 This service could also be changed to output the information
 in a format which could be more easily read by another
