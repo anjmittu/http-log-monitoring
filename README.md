@@ -98,6 +98,7 @@ docker run -it --rm -v `pwd`:/usr/src/myapp -w /usr/src/myapp log_monitor python
 Tests can be run with
 ```
 docker run -it --rm -v `pwd`:/usr/src/myapp -w /usr/src/myapp log_monitor behave test/behave/features
+docker run -it --rm -v `pwd`:/usr/src/myapp -w /usr/src/myapp log_monitor pytest
 ```
 
 ### Running without docker
@@ -118,6 +119,7 @@ python http_log_monitoring/log_monitor.py
 Tests can be run with
 ```
 behave test/behave/features
+pytest
 ```
 
 ## Implementation

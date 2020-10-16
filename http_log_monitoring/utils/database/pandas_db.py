@@ -38,17 +38,15 @@ class LogDatabasePandas(LogDatabase):
         This will get the average number of logs per sec in the database.
         :return: the average number of logs per sec
         """
-        return int(self.database["date"].value_counts().mean())
+
+        return int(self.database["date"].value_counts().sum()) // 120
 
     def get_stats(self, current_time, last_print):
         """
         This will return statistics for the logs which occurred in the time period given by STATS_TIME.
         :param current_time: The current time from the last log message
         :param last_print: The last time statistics were printed
-        :return: num_logs - The number of logs
-                section_stat - the most frequently logged section
-                user_stat - the most frequently logged user
-                failed_request - the number of failed requests
+        :return: The last time statistics were printed
         """
         logs_for_stats = self.database.loc[
             (current_time >= self.database["date"]) & (self.database["date"] > last_print)
