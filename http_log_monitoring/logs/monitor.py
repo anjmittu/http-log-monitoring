@@ -1,5 +1,6 @@
 from http_log_monitoring.logs.parser import LogParser
 from http_log_monitoring.utils.database import LogDatabase
+from http_log_monitoring.utils.database.pandas_db import LogDatabasePandas
 
 
 class LogMonitor:
@@ -14,7 +15,7 @@ class LogMonitor:
         :param threshold: The threshold value to cause an steps
         """
         self.header = LogParser.parse_header(log_header)
-        self.saved_logs = LogDatabase(self.header)
+        self.saved_logs = LogDatabasePandas(self.header)
         self.threshold = threshold
 
         # These values will hold the last time statistics were printed and the time of the first log.

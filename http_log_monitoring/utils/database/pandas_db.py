@@ -1,15 +1,8 @@
 import pandas as pd
-
-# This is the maximum time the logs should be stored
-# This value is set to 2 hours, since this is the longest we need to look up a log
-MAX_HOLD_LOGS = 2
-
-# This gives the time period on when statistics should be printed
-# This value is set to 10 secs
-STATS_TIME = 10
+from http_log_monitoring.utils.database import LogDatabase
 
 
-class LogDatabase:
+class LogDatabasePandas(LogDatabase):
     """
     This class stores the logs in a database and retrieves information about the logs.
     """
@@ -65,16 +58,3 @@ class LogDatabase:
         num_logs = len(logs_for_stats)
         return num_logs, section_stat, user_stat, failed_request
 
-    @staticmethod
-    def get_time_diff_for_stats():
-        """
-        :return: This will return a Timedelta object with the difference given by STATS_TIME.
-        """
-        return pd.Timedelta(STATS_TIME, 's')
-
-    @staticmethod
-    def get_time_diff_for_alerts():
-        """
-                :return: This will return a Timedelta object with the difference given by MAX_HOLD_LOGS.
-                """
-        return pd.Timedelta(MAX_HOLD_LOGS, 'm')
